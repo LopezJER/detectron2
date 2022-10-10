@@ -135,6 +135,8 @@ def do_train(cfg, model, resume=False):
     data_loader = build_detection_train_loader(cfg)
     logger.info("Starting training from iteration {}".format(start_iter))
     with EventStorage(start_iter) as storage:
+        previous_val_map = 0  # ADDED NEW
+        no_improvement_for_epochs = 0  # ADDED NEW
         for data, iteration in zip(data_loader, range(start_iter, max_iter)):
             storage.iter = iteration
 
