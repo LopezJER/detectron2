@@ -137,6 +137,7 @@ def do_train(cfg, model, resume=False):
     with EventStorage(start_iter) as storage:
         previous_val_map = 0  # ADDED NEW
         no_improvement_for_epochs = 0  # ADDED NEW
+        EARLY_STOPPING_ITERATION = 50
         for data, iteration in zip(data_loader, range(start_iter, max_iter)):
             storage.iter = iteration
 
