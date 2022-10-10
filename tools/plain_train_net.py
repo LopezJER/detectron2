@@ -159,6 +159,20 @@ def do_train(cfg, model, resume=False):
             ):
                 do_test(cfg, model)
                 # Compared to "train_net.py", the test results are not dumped to EventStorage
+                
+                ##### ADDED NEW ####################################################################
+                logger.info(f"Previous allAP50 is: {previous_val_map}")
+                if results['segm']['AP50'] > previous_val_map:
+                    previous_val_map = results['segm']['AP50']
+                    no_improvement_for_epochs = 0
+
+                    # Save best model
+                    checkpointer.save("best_model")
+                else:
+                    no_improvement_for_epochs += 1
+                    logger.info(f"There is no improvement for {no_improvement_for_epochs} epochs")
+                #####################################################################################
+
                 comm.synchronize()
 
             if iteration - start_iter > 5 and (
@@ -167,6 +181,19 @@ def do_train(cfg, model, resume=False):
                 for writer in writers:
                     writer.write()
             periodic_checkpointer.step(iteration)
+            
+            ##### ADDED NEW ####################################################################
+            # STOP IF THERE IS NO IMPROVEMENT FOR 5 EPOCHS
+            if no_improvement_for_epochs >= EARLY_STOPPING_ITERATION:
+                logger.info(f"Quiting from the training...")
+                try:
+                    for writer in writers:
+                        writer.write()
+                except Exception as e:
+                    logger.info(f"before termination latest logs cannot be sent to tensorboard:{e}")
+                break
+            #####################################################################################
+
 
 
 def setup(args):
