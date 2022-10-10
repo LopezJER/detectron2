@@ -33,6 +33,7 @@ from detectron2.data import (
     build_detection_test_loader,
     build_detection_train_loader,
 )
+from detectron2.data.datasets import register_coco_instances
 from detectron2.engine import default_argument_parser, default_setup, default_writers, launch
 from detectron2.evaluation import (
     CityscapesInstanceEvaluator,
@@ -211,6 +212,8 @@ def setup(args):
 
 
 def main(args):
+    register_coco_instances("train", {}, "../input/bracot/train_annotation_coco.json", "../input/bracot/train")
+    register_coco_instances("val", {}, "../input/bracot/test_annotation_coco.json", "../input/bracot/test")
     cfg = setup(args)
 
     model = build_model(cfg)
